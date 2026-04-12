@@ -1,14 +1,30 @@
 from rest_framework import serializers
 from decimal import Decimal
-from product.models import Category
+from product.models import Category, Product
 
 
+"""
 class CategorySerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     description = serializers.CharField()
+"""
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id','name','description', 'product_count']
 
+    # product_count = serializers.SerializerMethodField(
+    #     method_name = 'get_product_count')
+    
+    # def get_product_count(self, category):
+    #     count = Product.objects.filter(category=category).count()
+    #     return count
 
+    # Efficient way for product count
+    product_count = serializers.IntegerField()
+
+"""
 class ProductSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
@@ -17,21 +33,39 @@ class ProductSerializer(serializers.Serializer):
 
     price_with_tax = serializers.SerializerMethodField(
         method_name='calculate_tax')
-    """This will show the category number"""
+    #This will show the category number
     # category = serializers.PrimaryKeyRelatedField(
     #     queryset=Category.objects.all()
     # )
 
-    """This will show the category name"""
+    #This will show the category name
     # category = serializers.StringRelatedField()
 
-    """This will show the CustomCategory"""
+    #This will show the CustomCategory
     # category = CategorySerializer()
 
-    """This will show the category in link"""
+    #This will show the category in link
     category = serializers.HyperlinkedRelatedField(
         queryset=Category.objects.all(),
         view_name='specific-category',
+    )
+
+    def calculate_tax(self, product):
+        return round(product.price * Decimal(1.1), 2)
+"""
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        # fields = '__all__' //will show all fields 
+        fields = ['id', 'name', 'description', 'price', 'stock', 'category', 'price_with_tax']
+
+    price_with_tax = serializers.SerializerMethodField(
+        method_name='calculate_tax')
+    
+    category = serializers.HyperlinkedRelatedField(
+        queryset = Category.objects.all(),
+        view_name = 'specific-category',
     )
 
     def calculate_tax(self, product):

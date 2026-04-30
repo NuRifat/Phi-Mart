@@ -47,7 +47,7 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
 
 class ReviewViewSet(ModelViewSet):
-    queryset = Review.objects.all()
+    #queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
     def get_queryset(self):

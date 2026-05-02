@@ -15,6 +15,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from product.filters import ProductFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
 from product.paginations import DefaultPagination
+from rest_framework.permissions import IsAdminUser, AllowAny
+from api.permissions import IsAdminOrReadOnly, FullDjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
 # Create your views here.
 
 class ProductViewSet(ModelViewSet):
@@ -26,6 +29,17 @@ class ProductViewSet(ModelViewSet):
     pagination_class = DefaultPagination
     search_fields = ['name','description','category__name']
     ordering_fields = ['price']
+    # permission_classes = [IsAdminUser] # NO one have the access to this api except admin
+    # permission_classes = [IsAdminOrReadOnly] # Custom permission - Read (GET, HEAD, OPTIONS) allowed for everyone; write operations restricted to admin users
+    permission_classes = [DjangoModelPermissions] # Model permission
+    # permission_classes = [DjangoModelPermissionsOrAnonReadOnly] # Unauthenticated users can only read (GET)
+    # permission_classes = [FullDjangoModelPermissions] # Custom model permission
+
+    # method override -  Allow anyone to perform GET requests (public read access), Restrict all other methods (POST, PUT, DELETE) to admin users only
+    # def get_permissions(self):
+    #     if self.request.method == 'GET':
+    #         return [AllowAny()]
+    #     return [IsAdminUser()]
 
     # def get_queryset(self):
     #     queryset = Product.objects.all()

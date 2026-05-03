@@ -107,7 +107,7 @@ class CreateOrderSerializer(serializers.Serializer):
         # OrderItem.objects.bulk_create(order_items)
         # cart.delete()
         # return order
-        
+
         try:
             order = OrderService.create_order(user_id=user_id, cart_id=cart_id)
             return order
@@ -125,6 +125,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['id', 'product', 'price', 'quantity', 'total_price']
+
+# admin sudu status update korte parbe kono order ar
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['status']
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)

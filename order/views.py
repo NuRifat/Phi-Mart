@@ -1,9 +1,13 @@
 from django.shortcuts import render
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from order.serializers import CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer, OrderSerializer, OrderItemSerializer, CreateOrderSerializer, UpdateOrderSerializer
+from order import serializers as orderSz
+from order.serializers import CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer
 from order.models import Cart, CartItem, Order, OrderItem
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import action
+from order.services import OrderService
+from rest_framework.response import Response
 # Create your views here.
 
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
@@ -40,19 +44,37 @@ class OrderViewSet(ModelViewSet):
 
     http_method_names = ['get', 'post', 'delete', 'patch', 'head', 'options']
 
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def cancel(self, request, pk=None):
+        order = self.get_object()
+        OrderService.cancel_order(order=order, user=request.user)
+        return Response({'status': 'Order canceled'})
+
+    @action(detail=True, methods=['patch'])
+    def update_status(self, request, pk=None):
+        order = self.get_object()
+        serializer = orderSz.UpdateOrderSerializer(
+            order, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'status': f"Order status updated to {request.data['status']}"})
+
     # Update and Delete operation sudu admin korbe
     def get_permissions(self):
-        if self.request.method == 'DELETE':
+        if self.action in ['update_status', 'destroy']:
             return [IsAdminUser()]
         return [IsAuthenticated()]
     
     # it will convert my orders api more easy to use for ordering, only cart id enough to book a order
     def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return CreateOrderSerializer
+        if self.action == 'cancel':
+            return orderSz.EmptySerializer
+        elif self.request.method == 'POST':
+            return orderSz.CreateOrderSerializer
         elif self.request.method == 'PATCH':
-            return UpdateOrderSerializer
-        return OrderSerializer
+            return orderSz.UpdateOrderSerializer
+        return orderSz.OrderSerializer
+
     
     # it will give the user_id to serializer 
     def get_serializer_context(self):

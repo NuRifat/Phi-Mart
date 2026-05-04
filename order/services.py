@@ -1,11 +1,12 @@
 from order.models import Cart, CartItem, OrderItem, Order
 from django.db import transaction
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
 
 class OrderService:
     @staticmethod
     def create_order(user_id, cart_id):
-        with transaction.atomic():
+        with transaction.atomic(): # this is a way to complete the task fully or not
             cart = Cart.objects.get(pk=cart_id)
             cart_items = cart.items.select_related('product').all()
 
@@ -31,3 +32,21 @@ class OrderService:
             cart.delete()
 
             return order
+        
+    @staticmethod
+    def cancel_order(order, user):
+        if user.is_staff:
+            order.status = Order.CANCELED
+            order.save()
+            return order
+
+        if order.user != user:
+            raise PermissionDenied(
+                {"detail": "You can only cancel your own order"})
+
+        if order.status == Order.DELIVERED:
+            raise ValidationError({"detail": "You can not cancel an order"})
+
+        order.status = Order.CANCELED
+        order.save()
+        return order

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from decimal import Decimal
-from product.models import Category, Product, Review
+from product.models import Category, Product, Review, ProductImage
 from django.contrib.auth import get_user_model
 
 
@@ -54,12 +54,17 @@ class ProductSerializer(serializers.Serializer):
     def calculate_tax(self, product):
         return round(product.price * Decimal(1.1), 2)
 """
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id','image']
 
 class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
     class Meta:
         model = Product
         # fields = '__all__' //will show all fields 
-        fields = ['id', 'name', 'description', 'price', 'stock', 'category', 'price_with_tax']
+        fields = ['id', 'name', 'description', 'price', 'stock', 'category', 'price_with_tax', 'images']
 
     price_with_tax = serializers.SerializerMethodField(
         method_name='calculate_tax')

@@ -19,9 +19,15 @@ from rest_framework.permissions import IsAdminUser, AllowAny
 from api.permissions import IsAdminOrReadOnly, FullDjangoModelPermissions
 from rest_framework.permissions import DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
 from product.permissions import IsReviewAuthorOrReadOnly
+from drf_yasg.utils import swagger_auto_schema
 # Create your views here.
 
 class ProductViewSet(ModelViewSet):
+    """
+    API endpoint for managing products
+     - Allows authenticated....
+     - Support ....
+    """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -36,6 +42,13 @@ class ProductViewSet(ModelViewSet):
     # permission_classes = [DjangoModelPermissionsOrAnonReadOnly] # Unauthenticated users can only read (GET)
     # permission_classes = [FullDjangoModelPermissions] # Custom model permission
 
+    @swagger_auto_schema(
+            operation_summary='Retrive a list of product',
+            operation_description='Allow to view product list'
+    )
+    def list(self, request, *args, **kwargs):
+        """Retrive all products"""
+        return super().list(request, *args, **kwargs)
     # method override -  Allow anyone to perform GET requests (public read access), Restrict all other methods (POST, PUT, DELETE) to admin users only
     # def get_permissions(self):
     #     if self.request.method == 'GET':
@@ -50,12 +63,12 @@ class ProductViewSet(ModelViewSet):
     #         queryset = Product.objects.filter(category_id=category_id)
     #     return queryset
 
-    def destroy(self, request, *args, **kwargs):
-        product = self.get_object()
-        if product.stock > 10:
-            return Response({'message':"Product mnore than 10, cannot delete"})
-        self.perform_destroy(product)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def destroy(self, request, *args, **kwargs):
+    #     product = self.get_object()
+    #     if product.stock > 10:
+    #         return Response({'message':"Product mnore than 10, cannot delete"})
+    #     self.perform_destroy(product)
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
     
 class ProductImageViewSet(ModelViewSet):
     serializer_class = ProductImageSerializer

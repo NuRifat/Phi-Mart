@@ -23,7 +23,7 @@ class CategorySerializer(serializers.ModelSerializer):
     #     return count
 
     # Efficient way for product count
-    product_count = serializers.IntegerField(read_only=True)
+    product_count = serializers.IntegerField(read_only=True, help_text="Retrun the number of total product")
 
 """
 class ProductSerializer(serializers.Serializer):

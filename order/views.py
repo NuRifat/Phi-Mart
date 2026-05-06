@@ -19,6 +19,8 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
+        if getattr(self,'swagger_fake_view',False):
+            return Cart.objects.none()
         return Cart.objects.prefetch_related('items__product').filter(user=self.request.user)
 
 class CartItemViewSet(ModelViewSet):
@@ -33,10 +35,10 @@ class CartItemViewSet(ModelViewSet):
         return CartItemSerializer
     
     def get_serializer_context(self):
-        return {'cart_id': self.kwargs['cart_pk']}
+        return {'cart_id': self.kwargs.get('cart_pk')}
 
     def get_queryset(self):
-        return CartItem.objects.select_related('product').filter(cart_id=self.kwargs['cart_pk'])
+        return CartItem.objects.select_related('product').filter(cart_id=self.kwargs.get('cart_pk'))
     
 class OrderViewSet(ModelViewSet):
     # serializer_class = OrderSerializer
@@ -78,9 +80,13 @@ class OrderViewSet(ModelViewSet):
     
     # it will give the user_id to serializer 
     def get_serializer_context(self):
+        if getattr(self,'swagger_fake_view',False):
+            return super().get_serializer_context()
         return {'user_id': self.request.user.id, 'user': self.request.user}
 
     def get_queryset(self):
+        if getattr(self,'swagger_fake_view',False):
+            return Order.objects.none()
         if self.request.user.is_staff:
             return Order.objects.prefetch_related('items__product').all()
         return Order.objects.prefetch_related('items__product').filter(user=self.request.user) 

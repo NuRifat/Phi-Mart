@@ -55,6 +55,7 @@ class ProductSerializer(serializers.Serializer):
         return round(product.price * Decimal(1.1), 2)
 """
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField() # this need for cloudinary image_field
     class Meta:
         model = ProductImage
         fields = ['id','image']

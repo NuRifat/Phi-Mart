@@ -38,7 +38,7 @@ class ProductViewSet(ModelViewSet):
     ordering_fields = ['price']
     # permission_classes = [IsAdminUser] # NO one have the access to this api except admin
     # permission_classes = [IsAdminOrReadOnly] # Custom permission - Read (GET, HEAD, OPTIONS) allowed for everyone; write operations restricted to admin users
-    permission_classes = [DjangoModelPermissions] # Model permission
+    # permission_classes = [DjangoModelPermissions] # Model permission
     # permission_classes = [DjangoModelPermissionsOrAnonReadOnly] # Unauthenticated users can only read (GET)
     # permission_classes = [FullDjangoModelPermissions] # Custom model permission
 

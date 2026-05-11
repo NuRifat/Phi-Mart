@@ -28,7 +28,7 @@ class ProductViewSet(ModelViewSet):
      - Allows authenticated....
      - Support ....
     """
-    queryset = Product.objects.all()
+    # queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     # filterset_fields = ['category_id']
@@ -41,6 +41,9 @@ class ProductViewSet(ModelViewSet):
     # permission_classes = [DjangoModelPermissions] # Model permission
     # permission_classes = [DjangoModelPermissionsOrAnonReadOnly] # Unauthenticated users can only read (GET)
     # permission_classes = [FullDjangoModelPermissions] # Custom model permission
+
+    def get_queryset(self):
+        return Product.objects.prefetch_related('images').all()
 
     @swagger_auto_schema(
             operation_summary='Retrive a list of product',

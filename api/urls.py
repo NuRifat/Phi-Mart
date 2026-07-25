@@ -24,9 +24,9 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     path("payment/initiate/", initiate_payment, name="initiate_payment"),
-    path("payment/success/", initiate_payment, name="payment-success"),
-    path("payment/fail/", initiate_payment, name="payment-fail"),
-    path("payment/cancel/", initiate_payment, name="payment-cancel"),
+    path("payment/success/", payment_success, name="payment-success"),
+    path("payment/fail/", payment_fail, name="payment-fail"),
+    path("payment/cancel/", payment_cancel, name="payment-cancel"),
 ]
 
 # urlpatterns = [
